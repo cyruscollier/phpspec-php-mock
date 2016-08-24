@@ -48,7 +48,7 @@ class CollaboratorsMaintainer extends PhpSpecCollaboratorsMaintainer
         CollaboratorManager $collaborators
     ) {
         MockRegistry::getInstance()->unregisterAll();
-        $this->prophet->checkPredictions();
+        parent::teardown($example, $context, $matchers, $collaborators);
     }
 
 }
