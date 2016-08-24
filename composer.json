@@ -1,0 +1,25 @@
+{
+    "name": "cyruscollier/phpspec-php-mock",
+    "description": "Adds the PHP Mock function mocking library as a phpspec Collaborator",
+    "keywords": ["phpspec", "phpmock", "prophecy", "test"],
+    "homepage": "http://github.com/cyruscollier/phpspec-php-mock",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Cyrus Collier",
+            "email": "web@cyruscollier.com",
+            "homepage": "http://www.collierwebdesign.com"
+        }
+    ],
+    "license": "MIT",
+    "require": {
+        "phpspec/phpspec": "~2.1",
+        "php-mock/php-mock-prophecy": "0.0.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "PhpSpec\\PhpMock\\": "src/"
+        }
+    }
+    
+}
