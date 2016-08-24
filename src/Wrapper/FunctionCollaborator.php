@@ -4,6 +4,8 @@ namespace PhpSpec\PhpMock\Wrapper;
 
 use PhpSpec\Wrapper\WrapperInterface;
 use phpmock\prophecy\FunctionProphecy;
+use PhpSpec\Loader\Node\ExampleNode;
+use Prophecy\Prophet;
 
 class FunctionCollaborator implements WrapperInterface
 {
@@ -13,11 +15,13 @@ class FunctionCollaborator implements WrapperInterface
     private $prophecy;
 
     /**
-     * @param FunctionProphecy $prophecy
+     * @param Prophet $prophet
+     * @param ExampleNode $example
      */
-    public function __construct(FunctionProphecy $prophecy)
+    public function __construct(Prophet $prophet, ExampleNode $example)
     {
-        $this->prophecy  = $prophecy;
+        $namespace = $example->getSpecification()->getResource()->getSrcNamespace();
+        $this->prophecy = new FunctionProphecy($namespace, $prophet);
     }
 
     /**

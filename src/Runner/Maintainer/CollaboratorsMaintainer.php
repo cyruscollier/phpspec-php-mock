@@ -32,9 +32,7 @@ class CollaboratorsMaintainer extends PhpSpecCollaboratorsMaintainer
         $reflection = new \ReflectionProperty($this, 'prophet');
         $reflection->setAccessible(true);
         $prophet = $reflection->getValue($this);
-        $namespace = $example->getSpecification()->getResource()->getSrcNamespace();
-        $collaborator = new FunctionCollaborator(new FunctionProphecy($namespace, $prophet));
-        $collaborators->set($name, $collaborator);
+        $collaborators->set('functions', new FunctionCollaborator($prophet, $example));
     }
 
     /**
