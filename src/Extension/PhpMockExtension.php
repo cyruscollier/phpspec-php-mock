@@ -13,12 +13,15 @@ class PhpMockExtension implements ExtensionInterface
      */
     public function load(ServiceContainer $container)
     {
-        $container->set('runner.maintainers.collaborators', function (ServiceContainer $c) {
-            return new CollaboratorsMaintainer(
-                $c->get('unwrapper'),
-                $c->get('loader.transformer.typehintindex'),
-                $c->get('event_dispatcher')
-            );
-        });
+        $container->set('runner.maintainers.collaborators', [$this, 'createMaintainer']);
+    }
+    
+    public function createMaintainer(ServiceContainer $container)
+    {
+        return new CollaboratorsMaintainer(
+            $container->get('unwrapper'),
+            $container->get('loader.transformer.typehintindex'),
+            $container->get('event_dispatcher')
+        );
     }
 }
