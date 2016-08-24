@@ -1,0 +1,7 @@
+suites:
+  main:
+    namespace: PhpSpec\PhpMock
+    psr4_prefix: PhpSpec\PhpMock
+
+extensions:
+  - PhpSpec\PhpMock\Extension\PhpMockExtension
