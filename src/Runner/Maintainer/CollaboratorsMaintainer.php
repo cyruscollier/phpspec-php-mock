@@ -8,12 +8,47 @@ use PhpSpec\Runner\CollaboratorManager;
 use PhpSpec\Loader\Node\ExampleNode;
 use PhpSpec\SpecificationInterface;
 use PhpSpec\PhpMock\Wrapper\FunctionCollaborator;
-use phpmock\MockRegistry;
 use phpmock\prophecy\FunctionProphecy;
+use Prophecy\Prophet;
+use phpmock\prophecy\ReferencePreservingRevealer;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface as Dispatcher;
+use PhpSpec\Event\EventInterface;
+use PhpSpec\Wrapper\Unwrapper;
+use PhpSpec\Loader\Transformer\TypeHintIndex;
+use phpmock\MockRegistry;
 
 class CollaboratorsMaintainer extends PhpSpecCollaboratorsMaintainer
 {
 
+    /**
+     * @var Prophet
+     */
+    protected $prophet;
+    
+    /**
+     * @var Dispatcher
+     */
+    protected $dispatcher;
+    
+    /**
+     * @var FunctionCollaborator
+     */
+    protected $function_collaborator;
+    
+    /**
+     * @param Unwrapper $unwrapper
+     * @param TypeHintIndex $typeHintIndex
+     */
+    public function __construct(
+        Unwrapper $unwrapper, 
+        TypeHintIndex $typeHintIndex = null,
+        Dispatcher $dispatcher
+    )
+    {
+        parent::__construct($unwrapper, $typeHintIndex);
+        $this->dispatcher = $dispatcher;
+    }
+    
     /**
      * Replaces a predefined collaborator named "$functions" with one using FunctionProphecy
      * 
@@ -29,10 +64,15 @@ class CollaboratorsMaintainer extends PhpSpecCollaboratorsMaintainer
         parent::prepare($example, $context, $matchers, $collaborators);
         if (!$collaborators->has('functions'))
             return;
-        $reflection = new \ReflectionProperty($this, 'prophet');
+        $reflection = new \ReflectionProperty(get_parent_class($this), 'prophet');
         $reflection->setAccessible(true);
         $prophet = $reflection->getValue($this);
-        $collaborators->set('functions', new FunctionCollaborator($prophet, $example));
+        $revealer = new ReferencePreservingRevealer(self::getProphetProperty($prophet, "revealer"));
+        $util = self::getProphetProperty($prophet, "util");
+        $this->prophet = new Prophet($prophet->getDoubler(), $revealer, $util);
+        $this->function_collaborator = new FunctionCollaborator($this->prophet, $example);
+        $collaborators->set('functions', $this->function_collaborator);
+        $this->dispatcher->addListener('beforeMethodCall', [$this, 'revealFunctionProphecy']);
     }
 
     /**
@@ -47,8 +87,26 @@ class CollaboratorsMaintainer extends PhpSpecCollaboratorsMaintainer
         MatcherManager $matchers,
         CollaboratorManager $collaborators
     ) {
-        MockRegistry::getInstance()->unregisterAll();
+
+        if(isset($this->prophet)) {
+            MockRegistry::getInstance()->unregisterAll();
+            $this->prophet->checkPredictions();
+        }
         parent::teardown($example, $context, $matchers, $collaborators);
+    }
+    
+    public function revealFunctionProphecy(EventInterface $event)
+    {
+        if (empty( $this->function_collaborator)) return;
+        $this->function_collaborator->getWrappedObject();
+        $this->function_collaborator = null;
+    }
+    
+    private static function getProphetProperty($object, $property)
+    {
+        $reflection = new \ReflectionProperty($object, $property);
+        $reflection->setAccessible(true);
+        return $reflection->getValue($object);
     }
 
 }

@@ -6,6 +6,7 @@ use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use PhpSpec\Wrapper\Unwrapper;
 use PhpSpec\Loader\Transformer\TypeHintIndex;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CollaboratorsMaintainerSpec extends ObjectBehavior
 {
@@ -14,8 +15,11 @@ class CollaboratorsMaintainerSpec extends ObjectBehavior
         $this->shouldHaveType('PhpSpec\PhpMock\Runner\Maintainer\CollaboratorsMaintainer');
     }
     
-    function let(Unwrapper $unwrapper, TypeHintIndex $typeHintIndex)
-    {
-        $this->beConstructedWith($unwrapper, $typeHintIndex);
+    function let(
+        Unwrapper $unwrapper, 
+        TypeHintIndex $typeHintIndex, 
+        EventDispatcherInterface $dispatcher
+    ) {
+        $this->beConstructedWith($unwrapper, $typeHintIndex, $dispatcher);
     }
 }
