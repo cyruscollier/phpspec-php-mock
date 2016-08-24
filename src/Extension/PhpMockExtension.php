@@ -16,7 +16,8 @@ class PhpMockExtension implements ExtensionInterface
         $container->set('runner.maintainers.collaborators', function (ServiceContainer $c) {
             return new CollaboratorsMaintainer(
                 $c->get('unwrapper'),
-                $c->get('loader.transformer.typehintindex')
+                $c->get('loader.transformer.typehintindex'),
+                $c->get('event_dispatcher')
             );
         });
     }
