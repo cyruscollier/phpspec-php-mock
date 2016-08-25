@@ -49,7 +49,7 @@ The spec for that class that mocks the `time()` function:
 
     use PhpSpec\ObjectBehavior;
     
-    class FunctionExampleSpec extends ObjectBehavior
+    class TimeSpec extends ObjectBehavior
     {
         function it_is_initializable()
         {
