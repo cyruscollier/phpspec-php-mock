@@ -2,7 +2,6 @@
 
 namespace PhpSpec\PhpMock\Runner\Maintainer;
 
-use PhpSpec\Runner\Maintainer\CollaboratorsMaintainer as PhpSpecCollaboratorsMaintainer;
 use PhpSpec\Runner\MatcherManager;
 use PhpSpec\Runner\CollaboratorManager;
 use PhpSpec\Loader\Node\ExampleNode;
@@ -16,14 +15,21 @@ use PhpSpec\Event\EventInterface;
 use PhpSpec\Wrapper\Unwrapper;
 use PhpSpec\Loader\Transformer\TypeHintIndex;
 use phpmock\MockRegistry;
+use PhpSpec\Runner\Maintainer\MaintainerInterface;
+use PhpSpec\Event\MethodCallEvent;
 
-class CollaboratorsMaintainer extends PhpSpecCollaboratorsMaintainer
+class FunctionCollaboratorMaintainer implements MaintainerInterface
 {
 
     /**
      * @var Prophet
      */
     protected $prophet;
+    
+    /**
+     * @var MockRegistry
+     */
+    protected $mockregistry;
     
     /**
      * @var Dispatcher
@@ -33,20 +39,21 @@ class CollaboratorsMaintainer extends PhpSpecCollaboratorsMaintainer
     /**
      * @var FunctionCollaborator
      */
-    protected $function_collaborator;
+    protected $collaborator;
     
     /**
      * @param Unwrapper $unwrapper
      * @param TypeHintIndex $typeHintIndex
      */
     public function __construct(
-        Unwrapper $unwrapper, 
-        TypeHintIndex $typeHintIndex = null,
-        Dispatcher $dispatcher
+        Dispatcher $dispatcher,
+        Prophet $prophet,
+        MockRegistry $mockregistry
     )
     {
-        parent::__construct($unwrapper, $typeHintIndex);
+        $this->mockregistry = $mockregistry;
         $this->dispatcher = $dispatcher;
+        $this->prophet = $prophet;
     }
     
     /**
@@ -61,18 +68,13 @@ class CollaboratorsMaintainer extends PhpSpecCollaboratorsMaintainer
         MatcherManager $matchers,
         CollaboratorManager $collaborators
     ) {
-        parent::prepare($example, $context, $matchers, $collaborators);
         if (!$collaborators->has('functions'))
-            return;
-        $reflection = new \ReflectionProperty(get_parent_class($this), 'prophet');
-        $reflection->setAccessible(true);
-        $prophet = $reflection->getValue($this);
-        $revealer = new ReferencePreservingRevealer(self::getProphetProperty($prophet, "revealer"));
-        $util = self::getProphetProperty($prophet, "util");
-        $this->prophet = new Prophet($prophet->getDoubler(), $revealer, $util);
-        $this->function_collaborator = new FunctionCollaborator($this->prophet, $example);
-        $collaborators->set('functions', $this->function_collaborator);
+            return false;
+        
+        $this->collaborator = new FunctionCollaborator($this->prophet, $example);
+        $collaborators->set('functions', $this->collaborator);
         $this->dispatcher->addListener('beforeMethodCall', [$this, 'revealFunctionProphecy']);
+        return true;
     }
 
     /**
@@ -87,26 +89,33 @@ class CollaboratorsMaintainer extends PhpSpecCollaboratorsMaintainer
         MatcherManager $matchers,
         CollaboratorManager $collaborators
     ) {
+        $this->mockregistry->unregisterAll();
+        $this->prophet->checkPredictions();
+    }
+        
+    public function revealFunctionProphecy(MethodCallEvent $event)
+    {
+        if (!isset($this->collaborator)) return;
+        $this->collaborator->getWrappedObject();
+        $this->collaborator = null;
+    }
 
-        if(isset($this->prophet)) {
-            MockRegistry::getInstance()->unregisterAll();
-            $this->prophet->checkPredictions();
-        }
-        parent::teardown($example, $context, $matchers, $collaborators);
-    }
-    
-    public function revealFunctionProphecy(EventInterface $event)
+    /**
+     * @param ExampleNode $example
+     *
+     * @return bool
+     */
+    public function supports(ExampleNode $example)
     {
-        if (empty( $this->function_collaborator)) return;
-        $this->function_collaborator->getWrappedObject();
-        $this->function_collaborator = null;
+        return true;
     }
-    
-    private static function getProphetProperty($object, $property)
+
+    /**
+     * @return int
+     */
+    public function getPriority()
     {
-        $reflection = new \ReflectionProperty($object, $property);
-        $reflection->setAccessible(true);
-        return $reflection->getValue($object);
+        return 40;
     }
 
 }

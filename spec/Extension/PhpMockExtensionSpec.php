@@ -6,9 +6,8 @@ use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use PhpSpec\ServiceContainer;
 use PhpSpec\Wrapper\Unwrapper;
-use PhpSpec\Loader\Transformer\TypeHintIndex;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use PhpSpec\PhpMock\Runner\Maintainer\CollaboratorsMaintainer;
+use PhpSpec\PhpMock\Runner\Maintainer\FunctionCollaboratorMaintainer;
 
 class PhpMockExtensionSpec extends ObjectBehavior
 {
@@ -20,7 +19,7 @@ class PhpMockExtensionSpec extends ObjectBehavior
     
     function it_loads_the_collaborator_maintainer_into_the_container(ServiceContainer $container)
     {
-        $container->set('runner.maintainers.collaborators', Argument::type('Callable'))
+        $container->set('runner.maintainers.function_collaborator', Argument::type('Callable'))
                   ->shouldBeCalled();
         $this->load($container);
     }
@@ -28,13 +27,11 @@ class PhpMockExtensionSpec extends ObjectBehavior
     function it_creates_the_collaborator_maintainer(
         ServiceContainer $container,
         Unwrapper $unwrapper, 
-        TypeHintIndex $typeHintIndex,
         EventDispatcherInterface $dispatcher
     ) {
         $container->get('unwrapper')->wilLReturn($unwrapper);
-        $container->get('loader.transformer.typehintindex')->willReturn($typeHintIndex);
         $container->get('event_dispatcher')->willReturn($dispatcher);
         $this->createMaintainer($container)
-             ->shouldReturnAnInstanceOf(CollaboratorsMaintainer::class);
+             ->shouldReturnAnInstanceOf(FunctionCollaboratorMaintainer::class);
     }
 }

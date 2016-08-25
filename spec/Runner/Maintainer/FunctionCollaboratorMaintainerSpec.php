@@ -15,20 +15,23 @@ use PhpSpec\PhpMock\FunctionExample;
 use PhpSpec\Loader\Node\SpecificationNode;
 use PhpSpec\PhpMock\Wrapper\FunctionCollaborator;
 use PhpSpec\Locator\ResourceInterface;
+use Prophecy\Prophet;
+use phpmock\MockRegistry;
 
-class CollaboratorsMaintainerSpec extends ObjectBehavior
+class FunctionCollaboratorMaintainerSpec extends ObjectBehavior
 {
     function it_is_initializable()
     {
-        $this->shouldHaveType('PhpSpec\PhpMock\Runner\Maintainer\CollaboratorsMaintainer');
+        $this->shouldHaveType('PhpSpec\PhpMock\Runner\Maintainer\FunctionCollaboratorMaintainer');
+        $this->shouldImplement('PhpSpec\Runner\Maintainer\MaintainerInterface');
     }
     
     function let(
-        Unwrapper $unwrapper, 
-        TypeHintIndex $typeHintIndex, 
-        EventDispatcherInterface $dispatcher
+        EventDispatcherInterface $dispatcher,
+        Prophet $prophet,
+        MockRegistry $mockregistry
     ) {
-        $this->beConstructedWith($unwrapper, $typeHintIndex, $dispatcher);
+        $this->beConstructedWith($dispatcher, $prophet, $mockregistry);
     }
     
 //     function it_prepares_an_example_with_a_function_prophecy_collaborator(
@@ -49,23 +52,28 @@ class CollaboratorsMaintainerSpec extends ObjectBehavior
         SpecificationNode $specification,
         ResourceInterface $resource
     ) {
-        $example->getSpecification()->willReturn($specification);
-        $class = new \ReflectionClass(FunctionExample::class);
-        $method = $class->getMethod('methodWithoutAFunction');
-        $specification->getClassReflection()->willReturn($class);
-        $example->getFunctionReflection()->willReturn($method);
         
         $collaborators->has('functions')->willReturn(false);
-        $this->prepare($example, $context, $matchers, $collaborators);
-        $collaborators->set('functions', Argument::any())
-                      ->shouldNotHaveBeenCalled();
+        $collaborators->set('functions', Argument::any())->shouldNotBeCalled();
+        $this->prepare($example, $context, $matchers, $collaborators)->shouldReturn(false);
         
         $collaborators->has('functions')->willReturn(true);
+        $example->getSpecification()->willReturn($specification);
         $specification->getResource()->willReturn($resource);
-        $resource->getSrcNamespace()->willReturn($class->getNamespaceName());
-        $collaborators->set('functions', Argument::any())
-                      ->shouldBeCalled();
-        $this->prepare($example, $context, $matchers, $collaborators);
-        
+        $collaborators->set('functions', Argument::any())->shouldBeCalled();
+        $this->prepare($example, $context, $matchers, $collaborators)->shouldReturn(true);
+    }
+    
+    function it_tears_down_an_example_by_checking_function_predictions(
+        ExampleNode $example,
+        SpecificationInterface $context,
+        MatcherManager $matchers,
+        CollaboratorManager $collaborators,
+        Prophet $prophet,
+        MockRegistry $mockregistry
+    ) {
+        $mockregistry->unregisterAll()->shouldBeCalled();
+        $prophet->checkPredictions()->shouldBeCalled();
+        $this->teardown($example, $context, $matchers, $collaborators);
     }
 }
