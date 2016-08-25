@@ -18,4 +18,9 @@ class FunctionExample
     {
         return $this->getCurrentTime() + $this->getRandomNumber();
     }
+    
+    function methodWithoutAFunction()
+    {
+        return true;
+    }
 }

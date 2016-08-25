@@ -34,24 +34,10 @@ class FunctionCollaborator implements WrapperInterface
     {
         return call_user_func_array(array($this->prophecy, '__call'), array($method, $arguments));
     }
-
-    /**
-     * @param string $parameter
-     * @param mixed  $value
-     */
-    public function __set($parameter, $value)
+    
+    public function getProphecy()
     {
-        $this->prophecy->$parameter = $value;
-    }
-
-    /**
-     * @param string $parameter
-     *
-     * @return mixed
-     */
-    public function __get($parameter)
-    {
-        return $this->prophecy->$parameter;
+        return $this->prophecy;
     }
 
     /**
