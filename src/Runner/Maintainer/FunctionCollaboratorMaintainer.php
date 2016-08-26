@@ -7,29 +7,15 @@ use PhpSpec\Runner\CollaboratorManager;
 use PhpSpec\Loader\Node\ExampleNode;
 use PhpSpec\SpecificationInterface;
 use PhpSpec\PhpMock\Wrapper\FunctionCollaborator;
-use phpmock\prophecy\FunctionProphecy;
-use Prophecy\Prophet;
-use phpmock\prophecy\ReferencePreservingRevealer;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface as Dispatcher;
-use PhpSpec\Event\EventInterface;
 use PhpSpec\Wrapper\Unwrapper;
 use PhpSpec\Loader\Transformer\TypeHintIndex;
-use phpmock\MockRegistry;
 use PhpSpec\Runner\Maintainer\MaintainerInterface;
 use PhpSpec\Event\MethodCallEvent;
 
 class FunctionCollaboratorMaintainer implements MaintainerInterface
 {
-
-    /**
-     * @var Prophet
-     */
-    protected $prophet;
-    
-    /**
-     * @var MockRegistry
-     */
-    protected $mockregistry;
+    const FUNCTIONS_PARAMETER = 'functions';
     
     /**
      * @var Dispatcher
@@ -45,19 +31,13 @@ class FunctionCollaboratorMaintainer implements MaintainerInterface
      * @param Unwrapper $unwrapper
      * @param TypeHintIndex $typeHintIndex
      */
-    public function __construct(
-        Dispatcher $dispatcher,
-        Prophet $prophet,
-        MockRegistry $mockregistry
-    )
+    public function __construct(Dispatcher $dispatcher)
     {
-        $this->mockregistry = $mockregistry;
         $this->dispatcher = $dispatcher;
-        $this->prophet = $prophet;
     }
     
     /**
-     * Replaces a predefined collaborator named "$functions" with one using FunctionProphecy
+     * Replaces a predefined collaborator named "$functions" with one using PHPProphecy
      * 
      * {@inheritDoc}
      * @see \PhpSpec\Runner\Maintainer\CollaboratorsMaintainer::prepare()
@@ -68,11 +48,9 @@ class FunctionCollaboratorMaintainer implements MaintainerInterface
         MatcherManager $matchers,
         CollaboratorManager $collaborators
     ) {
-        if (!$collaborators->has('functions'))
-            return false;
-        
-        $this->collaborator = new FunctionCollaborator($this->prophet, $example);
-        $collaborators->set('functions', $this->collaborator);
+        if (!$collaborators->has(self::FUNCTIONS_PARAMETER)) return false;
+        $this->collaborator = new FunctionCollaborator($example->getSpecification()->getResource());
+        $collaborators->set(self::FUNCTIONS_PARAMETER, $this->collaborator);
         $this->dispatcher->addListener('beforeMethodCall', [$this, 'revealFunctionProphecy']);
         return true;
     }
@@ -89,15 +67,15 @@ class FunctionCollaboratorMaintainer implements MaintainerInterface
         MatcherManager $matchers,
         CollaboratorManager $collaborators
     ) {
-        $this->mockregistry->unregisterAll();
-        $this->prophet->checkPredictions();
+        if (!isset($this->collaborator)) return false;
+        $this->collaborator->checkProphetPredictions();
+        return true;
     }
         
     public function revealFunctionProphecy(MethodCallEvent $event)
     {
-        if (!isset($this->collaborator)) return;
+        if(!isset($this->collaborator)) return;
         $this->collaborator->getWrappedObject();
-        $this->collaborator = null;
     }
 
     /**

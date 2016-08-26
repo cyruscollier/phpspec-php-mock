@@ -3,25 +3,29 @@
 namespace PhpSpec\PhpMock\Wrapper;
 
 use PhpSpec\Wrapper\WrapperInterface;
-use phpmock\prophecy\FunctionProphecy;
-use PhpSpec\Loader\Node\ExampleNode;
-use Prophecy\Prophet;
+use phpmock\prophecy\PHPProphet;
+use Prophecy\Prophecy\ProphecyInterface;
+use PhpSpec\Locator\ResourceInterface;
 
 class FunctionCollaborator implements WrapperInterface
 {
     /**
-     * @var FunctionProphecy
+     * @var ProphecyInterface
      */
-    private $prophecy;
+    protected $prophecy;
+    
+    /**
+     * @var PHPProphet
+     */
+    protected $function_prophet;
 
     /**
-     * @param Prophet $prophet
-     * @param ExampleNode $example
+     * @param ResourceInterface $resource
      */
-    public function __construct(Prophet $prophet, ExampleNode $example)
+    public function __construct(ResourceInterface $resource)
     {
-        $namespace = $example->getSpecification()->getResource()->getSrcNamespace();
-        $this->prophecy = new FunctionProphecy($namespace, $prophet);
+        $this->function_prophet = new PHPProphet();
+        $this->prophecy = $this->function_prophet->prophesize($resource->getSrcNamespace());
     }
 
     /**
@@ -32,12 +36,12 @@ class FunctionCollaborator implements WrapperInterface
      */
     public function __call($method, array $arguments)
     {
-        return call_user_func_array(array($this->prophecy, '__call'), array($method, $arguments));
+        return call_user_func_array([$this->prophecy, '__call'], [$method, $arguments]);
     }
     
-    public function getProphecy()
+    public function checkProphetPredictions()
     {
-        return $this->prophecy;
+        $this->function_prophet->checkPredictions();
     }
 
     /**
@@ -45,6 +49,11 @@ class FunctionCollaborator implements WrapperInterface
      */
     public function getWrappedObject()
     {
-        return $this->prophecy->reveal();
+
+        if (!$this->prophecy) return;
+        $object = $this->prophecy->reveal();
+        $this->prophecy = null; //so functions only get mocked once per example
+        return $object;
+        
     }
 }
