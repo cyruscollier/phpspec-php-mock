@@ -1,4 +1,7 @@
 # PhpSpec - PHP-Mock Extension
+
+[![Build Status](https://travis-ci.org/cyruscollier/phpspec-php-mock.svg?branch=master)](https://travis-ci.org/cyruscollier/phpspec-php-mock)
+
 Adds the PHP Mock function mocking library as a phpspec Collaborator
 
 This [phpspec](http://www.phpspec.net/) extension allows you to mock non-deterministic PHP core functions (`time()`, `rand()`, etc.), or mock functions from other libraries or frameworks that have side effects from dependencies like a database, filesystem or HTTP request. 
