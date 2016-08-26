@@ -6,7 +6,7 @@ Adds the PHP Mock function mocking library as a phpspec Collaborator
 
 This [phpspec](http://www.phpspec.net/) extension allows you to mock non-deterministic PHP core functions (`time()`, `rand()`, etc.), or mock functions from other libraries or frameworks that have side effects from dependencies like a database, filesystem or HTTP request. 
 
-By using the specially named parameter `$functions` in any example method, **phpspec-php-mock** will turn that parameter into a special `FunctionCollaborator` that wraps the [php-mock-prophecy](https://github.com/php-mock/php-mock-prophecy) library's `FunctionProphecy`. This allows you to mock return values for *any* function as you normally would for an `ObjectProphecy`.
+By using the specially named parameter `$functions` in any example method, **phpspec-php-mock** will turn that parameter into a special `FunctionCollaborator` that wraps the [php-mock-prophecy](https://github.com/php-mock/php-mock-prophecy) library's `PHPProphet`. This allows you to mock return values for *any* function as you normally would for an `ObjectProphecy`.
 
 ## Installation
 
