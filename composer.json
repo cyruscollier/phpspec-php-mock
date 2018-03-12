@@ -13,7 +13,7 @@
     ],
     "license": "MIT",
     "require": {
-        "phpspec/phpspec": "^4.3.0",
+        "phpspec/phpspec": "~2.1",
         "php-mock/php-mock-prophecy": "0.0.2"
     },
     "autoload": {
