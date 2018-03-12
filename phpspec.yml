@@ -4,4 +4,4 @@ suites:
     psr4_prefix: PhpSpec\PhpMock
 
 extensions:
-  - PhpSpec\PhpMock\Extension\PhpMockExtension
+  PhpSpec\PhpMock\Extension\PhpMockExtension: ~
