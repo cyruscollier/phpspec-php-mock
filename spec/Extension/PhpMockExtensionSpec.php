@@ -19,7 +19,9 @@ class PhpMockExtensionSpec extends ObjectBehavior
     
     function it_loads_the_collaborator_maintainer_into_the_container(ServiceContainer $container)
     {
-        $container->define('runner.maintainers.function_collaborator', Argument::type('Callable'))
+        $container->define(
+            'runner.maintainers.function_collaborator',
+            Argument::type('Callable'), Argument::type('array'))
                   ->shouldBeCalled();
         $this->load($container);
     }
