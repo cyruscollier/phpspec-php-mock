@@ -27,7 +27,7 @@ Then add this to your phpspec.yml:
 ```
 
     extensions:
-        - PhpSpec\PhpMock\Extension\PhpMockExtension
+      PhpSpec\PhpMock\Extension\PhpMockExtension: ~
 
 ```
 
@@ -67,3 +67,29 @@ The spec for that class that mocks the `time()` function:
     }
 
 ```
+
+Examples that test Exceptions require an extra line to reveal the function prophecy manually, 
+since the Throw Matcher executes the Subject method differently than the other matchers
+:
+
+```php
+
+    use PhpSpec\ObjectBehavior;
+    
+    class TimeSpec extends ObjectBehavior
+    {
+        function it_is_initializable()
+        {
+            $this->shouldHaveType('Time');
+        }
+    
+        function it_gets_the_current_time($functions)
+        {
+            $functions->time()->willReturn(123);
+            $functions->reveal();
+            $this->shouldThrow('\Exception')->during('getCurrentTime', [123]);
+        }
+    }
+
+```
+

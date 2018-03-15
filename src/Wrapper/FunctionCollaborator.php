@@ -56,4 +56,9 @@ class FunctionCollaborator implements ObjectWrapper
         return $object;
         
     }
+
+    public function reveal()
+    {
+        $this->getWrappedObject();
+    }
 }

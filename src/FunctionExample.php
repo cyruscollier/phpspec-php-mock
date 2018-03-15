@@ -23,4 +23,19 @@ class FunctionExample
     {
         return true;
     }
+
+    /**
+     * @param int $bail
+     * @return int
+     *
+     * @throws \Exception
+     */
+    function bailIfWrongNumber($bail = 0)
+    {
+        $result = rand(1, 1000);
+        if ($result == $bail) {
+            throw new \Exception();
+        }
+        return $result;
+    }
 }
