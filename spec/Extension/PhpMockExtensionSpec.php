@@ -14,12 +14,14 @@ class PhpMockExtensionSpec extends ObjectBehavior
     function it_is_initializable()
     {
         $this->shouldHaveType('PhpSpec\PhpMock\Extension\PhpMockExtension');
-        $this->shouldImplement('PhpSpec\Extension\ExtensionInterface');
+        $this->shouldImplement('PhpSpec\Extension');
     }
     
     function it_loads_the_collaborator_maintainer_into_the_container(ServiceContainer $container)
     {
-        $container->set('runner.maintainers.function_collaborator', Argument::type('Callable'))
+        $container->define(
+            'runner.maintainers.function_collaborator',
+            Argument::type('Callable'), Argument::type('array'))
                   ->shouldBeCalled();
         $this->load($container);
     }

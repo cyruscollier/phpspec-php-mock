@@ -2,12 +2,12 @@
 
 namespace PhpSpec\PhpMock\Wrapper;
 
-use PhpSpec\Wrapper\WrapperInterface;
+use PhpSpec\Wrapper\ObjectWrapper;
 use phpmock\prophecy\PHPProphet;
 use Prophecy\Prophecy\ProphecyInterface;
-use PhpSpec\Locator\ResourceInterface;
+use PhpSpec\Locator\Resource;
 
-class FunctionCollaborator implements WrapperInterface
+class FunctionCollaborator implements ObjectWrapper
 {
     /**
      * @var ProphecyInterface
@@ -20,9 +20,9 @@ class FunctionCollaborator implements WrapperInterface
     protected $function_prophet;
 
     /**
-     * @param ResourceInterface $resource
+     * @param Resource $resource
      */
-    public function __construct(ResourceInterface $resource)
+    public function __construct(Resource $resource)
     {
         $this->function_prophet = new PHPProphet();
         $this->prophecy = $this->function_prophet->prophesize($resource->getSrcNamespace());
@@ -55,5 +55,10 @@ class FunctionCollaborator implements WrapperInterface
         $this->prophecy = null; //so functions only get mocked once per example
         return $object;
         
+    }
+
+    public function reveal()
+    {
+        $this->getWrappedObject();
     }
 }

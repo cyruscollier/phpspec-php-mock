@@ -2,18 +2,16 @@
 
 namespace PhpSpec\PhpMock\Runner\Maintainer;
 
+use PhpSpec\Runner\Maintainer\Maintainer;
 use PhpSpec\Runner\MatcherManager;
 use PhpSpec\Runner\CollaboratorManager;
 use PhpSpec\Loader\Node\ExampleNode;
-use PhpSpec\SpecificationInterface;
+use PhpSpec\Specification;
 use PhpSpec\PhpMock\Wrapper\FunctionCollaborator;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface as Dispatcher;
-use PhpSpec\Wrapper\Unwrapper;
-use PhpSpec\Loader\Transformer\TypeHintIndex;
-use PhpSpec\Runner\Maintainer\MaintainerInterface;
 use PhpSpec\Event\MethodCallEvent;
 
-class FunctionCollaboratorMaintainer implements MaintainerInterface
+class FunctionCollaboratorMaintainer implements Maintainer
 {
     const FUNCTIONS_PARAMETER = 'functions';
     
@@ -28,8 +26,7 @@ class FunctionCollaboratorMaintainer implements MaintainerInterface
     protected $collaborator;
     
     /**
-     * @param Unwrapper $unwrapper
-     * @param TypeHintIndex $typeHintIndex
+     * @param Dispatcher $dispatcher
      */
     public function __construct(Dispatcher $dispatcher)
     {
@@ -44,13 +41,14 @@ class FunctionCollaboratorMaintainer implements MaintainerInterface
      */
     public function prepare(
         ExampleNode $example,
-        SpecificationInterface $context,
+        Specification $context,
         MatcherManager $matchers,
         CollaboratorManager $collaborators
     ) {
         if (!$collaborators->has(self::FUNCTIONS_PARAMETER)) return false;
         $this->collaborator = new FunctionCollaborator($example->getSpecification()->getResource());
         $collaborators->set(self::FUNCTIONS_PARAMETER, $this->collaborator);
+
         $this->dispatcher->addListener('beforeMethodCall', [$this, 'revealFunctionProphecy']);
         return true;
     }
@@ -63,7 +61,7 @@ class FunctionCollaboratorMaintainer implements MaintainerInterface
      */
     public function teardown(
         ExampleNode $example,
-        SpecificationInterface $context,
+        Specification $context,
         MatcherManager $matchers,
         CollaboratorManager $collaborators
     ) {
@@ -83,7 +81,7 @@ class FunctionCollaboratorMaintainer implements MaintainerInterface
      *
      * @return bool
      */
-    public function supports(ExampleNode $example)
+    public function supports(ExampleNode $example): bool
     {
         return true;
     }
@@ -91,7 +89,7 @@ class FunctionCollaboratorMaintainer implements MaintainerInterface
     /**
      * @return int
      */
-    public function getPriority()
+    public function getPriority(): int
     {
         return 40;
     }

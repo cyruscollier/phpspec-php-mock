@@ -2,28 +2,28 @@
 
 namespace PhpSpec\PhpMock\Extension;
 
-use PhpSpec\Extension\ExtensionInterface;
+use PhpSpec\Extension;
 use PhpSpec\ServiceContainer;
 use PhpSpec\PhpMock\Runner\Maintainer\FunctionCollaboratorMaintainer;
-use Prophecy\Prophet;
-use phpmock\MockRegistry;
 
-class PhpMockExtension implements ExtensionInterface
+class PhpMockExtension implements Extension
 {
     /**
      * @param ServiceContainer $container
      */
-    public function load(ServiceContainer $container)
+    public function load(ServiceContainer $container, array $params = [])
     {
-        $container->set('runner.maintainers.function_collaborator', [$this, 'createMaintainer']);
+        $container->define(
+            'runner.maintainers.function_collaborator',
+            [$this, 'createMaintainer'],
+            ['runner.maintainers']
+        );
     }
     
     public function createMaintainer(ServiceContainer $container)
     {
         return new FunctionCollaboratorMaintainer(
-            $container->get('event_dispatcher'),
-            new Prophet(null, $container->get('unwrapper'), null),
-            MockRegistry::getInstance()
+            $container->get('event_dispatcher')
         );
     }
 }
