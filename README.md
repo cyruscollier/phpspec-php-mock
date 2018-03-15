@@ -8,6 +8,12 @@ This [phpspec](http://www.phpspec.net/) extension allows you to mock non-determi
 
 By using the specially named parameter `$functions` in any example method, **phpspec-php-mock** will turn that parameter into a special `FunctionCollaborator` that wraps the [php-mock-prophecy](https://github.com/php-mock/php-mock-prophecy) library's `PHPProphet`. This allows you to mock return values for *any* function as you normally would for an `ObjectProphecy`.
 
+## Changelog
+
+v2.0 - Updated for phpspec 4.x, added spec and doc for usage with Throw Matcher
+
+v1.0 - Initial build for phpspec 2.x 
+
 ## Installation
 
 Add this to your composer.json:
