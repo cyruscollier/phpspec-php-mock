@@ -9,8 +9,6 @@ use PhpSpec\Loader\Node\ExampleNode;
 use PhpSpec\Specification;
 use PhpSpec\PhpMock\Wrapper\FunctionCollaborator;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface as Dispatcher;
-use PhpSpec\Wrapper\Unwrapper;
-use PhpSpec\Loader\Transformer\TypeHintIndex;
 use PhpSpec\Event\MethodCallEvent;
 
 class FunctionCollaboratorMaintainer implements Maintainer
@@ -28,8 +26,7 @@ class FunctionCollaboratorMaintainer implements Maintainer
     protected $collaborator;
     
     /**
-     * @param Unwrapper $unwrapper
-     * @param TypeHintIndex $typeHintIndex
+     * @param Dispatcher $dispatcher
      */
     public function __construct(Dispatcher $dispatcher)
     {
