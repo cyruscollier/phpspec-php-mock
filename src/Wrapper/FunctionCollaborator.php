@@ -42,17 +42,6 @@ class FunctionCollaborator implements ObjectWrapper
     {
         return call_user_func_array([$this->prophesize(), '__call'], [$method, $arguments]);
     }
-
-    public function getNamespace()
-    {
-        return $this->namespace;
-    }
-
-    public function setNamespace(string $namespace)
-    {
-        $this->namespace = $namespace;
-    }
-
     
     public function checkProphetPredictions()
     {
@@ -82,10 +71,10 @@ class FunctionCollaborator implements ObjectWrapper
     public function prophesize(string $namespace = '')
     {
         if ($namespace) {
-            $this->setNamespace($namespace);
+            $this->namespace = $namespace;
         }
         if (empty($this->prophecies) || $namespace) {
-            $this->prophecies[] = $this->function_prophet->prophesize($this->getNamespace());
+            $this->prophecies[] = $this->function_prophet->prophesize($this->namespace);
         }
         return end($this->prophecies);
     }

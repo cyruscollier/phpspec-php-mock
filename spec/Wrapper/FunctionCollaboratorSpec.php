@@ -22,17 +22,6 @@ class FunctionCollaboratorSpec extends ObjectBehavior
         $resource->getSrcNamespace()->willReturn('TestNamespace');
     }
 
-    function it_gets_the_namespace()
-    {
-        $this->getNamespace()->shouldReturn('TestNamespace');
-    }
-
-    function it_sets_the_namespace()
-    {
-        $this->setNamespace('SomeOtherNamespace');
-        $this->getNamespace()->shouldReturn('SomeOtherNamespace');
-    }
-
     function it_adds_a_function_prophecy(FunctionProphet $prophet, FunctionProphecy $prophecy)
     {
         $prophet->prophesize('TestNamespace')->willReturn($prophecy);

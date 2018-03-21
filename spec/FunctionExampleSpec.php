@@ -37,4 +37,12 @@ class FunctionExampleSpec extends ObjectBehavior
         $functions->reveal(); //extra call needed for exception matching
         $this->shouldThrow('\Exception')->during('bailIfWrongNumber', [1234]);
     }
+
+    function it_gets_a_random_server_number($functions)
+    {
+        $functions->rand(1, 1000)->willReturn(1234);
+        $functions->prophesize('PhpSpec\PhpMock\Test');
+        $functions->microtime(true)->willReturn(4321);
+        $this->getServerRandomNumber()->shouldReturn(5555);
+    }
 }
