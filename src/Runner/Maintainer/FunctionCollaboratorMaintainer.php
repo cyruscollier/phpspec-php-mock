@@ -14,17 +14,17 @@ use PhpSpec\Event\MethodCallEvent;
 class FunctionCollaboratorMaintainer implements Maintainer
 {
     const FUNCTIONS_PARAMETER = 'functions';
-    
+
     /**
      * @var Dispatcher
      */
     protected $dispatcher;
-    
+
     /**
      * @var FunctionCollaborator
      */
     protected $collaborator;
-    
+
     /**
      * @param Dispatcher $dispatcher
      */
@@ -32,10 +32,10 @@ class FunctionCollaboratorMaintainer implements Maintainer
     {
         $this->dispatcher = $dispatcher;
     }
-    
+
     /**
      * Replaces a predefined collaborator named "$functions" with one using PHPProphecy
-     * 
+     *
      * {@inheritDoc}
      * @see \PhpSpec\Runner\Maintainer\CollaboratorsMaintainer::prepare()
      */
@@ -44,18 +44,19 @@ class FunctionCollaboratorMaintainer implements Maintainer
         Specification $context,
         MatcherManager $matchers,
         CollaboratorManager $collaborators
-    ) {
-        if (!$collaborators->has(self::FUNCTIONS_PARAMETER)) return false;
+    ): void {
+        if (!$collaborators->has(self::FUNCTIONS_PARAMETER)) {
+            return;
+        }
         $this->collaborator = new FunctionCollaborator($example->getSpecification()->getResource());
         $collaborators->set(self::FUNCTIONS_PARAMETER, $this->collaborator);
 
         $this->dispatcher->addListener('beforeMethodCall', [$this, 'revealFunctionProphecy']);
-        return true;
     }
 
     /**
      * Adds call to unmock all registered mocked functions
-     * 
+     *
      * {@inheritDoc}
      * @see \PhpSpec\Runner\Maintainer\CollaboratorsMaintainer::teardown()
      */
@@ -64,12 +65,13 @@ class FunctionCollaboratorMaintainer implements Maintainer
         Specification $context,
         MatcherManager $matchers,
         CollaboratorManager $collaborators
-    ) {
-        if (!isset($this->collaborator)) return false;
+    ): void {
+        if (!isset($this->collaborator)) {
+            return;
+        }
         $this->collaborator->checkProphetPredictions();
-        return true;
     }
-        
+
     public function revealFunctionProphecy(MethodCallEvent $event)
     {
         if(!isset($this->collaborator)) return;
