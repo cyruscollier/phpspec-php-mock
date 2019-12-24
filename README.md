@@ -10,6 +10,8 @@ By using the specially named parameter `$functions` in any example method, **php
 
 ## Changelog
 
+v2.1.2 - Fixed tests related to previous version, updated phpspec to 6.x
+
 v2.1.1 - Interface return type fix
 
 v2.1 - Added support for defining multiple namespaces for function prophecies
