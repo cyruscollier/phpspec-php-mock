@@ -33,7 +33,7 @@ class FunctionExampleSpec extends ObjectBehavior
 
     function it_bails_if_wrong_number($functions)
     {
-        $functions->rand(0, 1)->willReturn(1234);
+        $functions->rand(1, 1000)->willReturn(1234);
         $functions->reveal(); //extra call needed for exception matching
         $this->shouldThrow('\Exception')->during('bailIfWrongNumber', [1234]);
     }

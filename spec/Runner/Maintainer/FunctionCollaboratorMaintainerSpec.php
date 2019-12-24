@@ -36,16 +36,16 @@ class FunctionCollaboratorMaintainerSpec extends ObjectBehavior
     ) {
         $collaborators->has('functions')->willReturn(false);
         $collaborators->set('functions', Argument::any())->shouldNotBeCalled();
-        $this->prepare($example, $context, $matchers, $collaborators)->shouldReturn(false);
-        $this->teardown($example, $context, $matchers, $collaborators)->shouldReturn(false);
+        $this->prepare($example, $context, $matchers, $collaborators)->shouldReturn(null);
+        $this->teardown($example, $context, $matchers, $collaborators)->shouldReturn(null);
         
         $collaborators->has('functions')->willReturn(true);
         $example->getSpecification()->willReturn($specification);
         $resource->getSrcNamespace()->willReturn('');
         $specification->getResource()->willReturn($resource);
         $collaborators->set('functions', Argument::any())->shouldBeCalled();
-        $this->prepare($example, $context, $matchers, $collaborators)->shouldReturn(true);
-        $this->teardown($example, $context, $matchers, $collaborators)->shouldReturn(true);
+        $this->prepare($example, $context, $matchers, $collaborators)->shouldReturn(null);
+        $this->teardown($example, $context, $matchers, $collaborators)->shouldReturn(null);
     }
 
 }
